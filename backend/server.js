@@ -18,10 +18,7 @@ const app = express();
 const path = require('path');
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-    origin: "*",
-    credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 // Set static folder for uploads
