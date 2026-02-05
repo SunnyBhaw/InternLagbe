@@ -19,7 +19,7 @@ const path = require('path');
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: "https://internlagbe.onrender.com",
+    origin: "*",
     credentials: true
 }));
 app.use(express.json());
