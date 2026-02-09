@@ -9,6 +9,7 @@ import {
     UserCheck
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import MobileHeader from '../components/MobileHeader';
 import Sidebar from '../components/Sidebar';
 import api from '../utils/api';
 
@@ -20,6 +21,7 @@ const UserManagement = () => {
   const [filterRole, setFilterRole] = useState('all');
   const [deleteId, setDeleteId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -60,12 +62,14 @@ const UserManagement = () => {
   });
 
   return (
-    <div className="flex h-screen bg-bg-secondary overflow-hidden font-sans">
-      <Sidebar />
+    <div className="flex flex-col lg:flex-row h-screen bg-bg-secondary overflow-hidden font-sans">
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="h-20 bg-bg-primary border-b border-border-light flex items-center justify-between px-8">
+        <MobileHeader isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} role="admin" />
+        
+        {/* Header - Desktop Only or Responsive Padding */}
+        <header className="hidden lg:flex h-20 bg-bg-primary border-b border-border-light items-center justify-between px-8">
           <div>
             <h2 className="text-2xl font-black text-primary tracking-tight">User Management</h2>
             <p className="text-sm text-text-tertiary font-medium">Manage and monitor all platform participants</p>
@@ -79,9 +83,17 @@ const UserManagement = () => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-8 bg-bg-secondary">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-bg-secondary custom-scrollbar">
           <div className="max-w-7xl mx-auto">
             
+            {/* Mobile Title */}
+            <div className="lg:hidden mb-6">
+                <h1 className="text-2xl font-black text-primary tracking-tight">User Management</h1>
+                <p className="text-[10px] font-black uppercase text-text-tertiary tracking-widest mt-1">
+                    {users.length} participants registered
+                </p>
+            </div>
+
             {/* Filters Bar */}
             <div className="bg-bg-primary p-4 rounded-3xl border border-border-light mb-8 flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 shadow-sm">
                 <div className="relative flex-1">
@@ -94,105 +106,109 @@ const UserManagement = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <div className="flex items-center space-x-2 bg-bg-tertiary px-4 py-1.5 rounded-2xl border border-border-light">
-                    <Filter size={16} className="text-text-tertiary" />
-                    <select 
-                        className="bg-transparent border-none focus:ring-0 text-sm font-bold text-primary py-2 pr-8"
-                        value={filterRole}
-                        onChange={(e) => setFilterRole(e.target.value)}
+                <div className="flex items-center gap-3">
+                    <div className="flex-1 flex items-center space-x-2 bg-bg-tertiary px-4 py-1.5 rounded-2xl border border-border-light">
+                        <Filter size={16} className="text-text-tertiary" />
+                        <select 
+                            className="bg-transparent border-none focus:ring-0 text-xs md:text-sm font-bold text-primary py-2 pr-8"
+                            value={filterRole}
+                            onChange={(e) => setFilterRole(e.target.value)}
+                        >
+                            <option value="all">All Roles</option>
+                            <option value="student">Students</option>
+                            <option value="company">Companies</option>
+                            <option value="admin">Admins</option>
+                        </select>
+                    </div>
+                    <button 
+                       onClick={fetchUsers}
+                       className="p-3 bg-bg-tertiary rounded-2xl border border-border-light hover:bg-border-light transition-colors text-primary"
+                       title="Refresh Data"
                     >
-                        <option value="all">All Roles</option>
-                        <option value="student">Students</option>
-                        <option value="company">Companies</option>
-                        <option value="admin">Admins</option>
-                    </select>
+                        <Loader2 size={20} className={loading ? "animate-spin" : ""} />
+                    </button>
                 </div>
-                <button 
-                   onClick={fetchUsers}
-                   className="p-3 bg-bg-tertiary rounded-2xl border border-border-light hover:bg-border-light transition-colors text-primary"
-                   title="Refresh Data"
-                >
-                    <Loader2 size={20} className={loading ? "animate-spin" : ""} />
-                </button>
             </div>
 
-            {/* Users Table */}
+            {/* Users Table / List */}
             <div className="bg-bg-primary rounded-3xl border border-border-light overflow-hidden shadow-sm">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-bg-tertiary/50 border-b border-border-light">
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-text-tertiary">User</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-text-tertiary">Role</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-text-tertiary">Registered</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-text-tertiary text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border-light">
-                        {loading ? (
-                            [...Array(5)].map((_, i) => (
-                                <tr key={i} className="animate-pulse">
-                                    <td className="px-6 py-6"><div className="h-10 w-48 bg-bg-tertiary rounded-lg"></div></td>
-                                    <td className="px-6 py-6"><div className="h-6 w-20 bg-bg-tertiary rounded-full"></div></td>
-                                    <td className="px-6 py-6"><div className="h-6 w-24 bg-bg-tertiary rounded-lg"></div></td>
-                                    <td className="px-6 py-6"><div className="h-8 w-8 bg-bg-tertiary rounded-lg ml-auto"></div></td>
-                                </tr>
-                            ))
-                        ) : filteredUsers.length > 0 ? (
-                            filteredUsers.map((user) => (
-                                <tr key={user._id} className="hover:bg-bg-tertiary/20 transition-colors group">
-                                    <td className="px-6 py-6 font-medium">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm border border-primary/20">
-                                                {user.name.charAt(0).toUpperCase()}
-                                            </div>
-                                            <div>
-                                                <p className="text-primary font-bold text-sm tracking-tight">{user.name}</p>
-                                                <div className="flex items-center text-xs text-text-tertiary font-medium mt-0.5">
-                                                    <Mail size={12} className="mr-1" />
-                                                    {user.email}
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr className="bg-bg-tertiary/50 border-b border-border-light">
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-text-tertiary">User</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-text-tertiary">Role</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-text-tertiary">Registered</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-text-tertiary text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border-light">
+                            {loading ? (
+                                [...Array(5)].map((_, i) => (
+                                    <tr key={i} className="animate-pulse">
+                                        <td className="px-6 py-6"><div className="h-10 w-48 bg-bg-tertiary rounded-lg"></div></td>
+                                        <td className="px-6 py-6"><div className="h-6 w-20 bg-bg-tertiary rounded-full"></div></td>
+                                        <td className="px-6 py-6"><div className="h-6 w-24 bg-bg-tertiary rounded-lg"></div></td>
+                                        <td className="px-6 py-6"><div className="h-8 w-8 bg-bg-tertiary rounded-lg ml-auto"></div></td>
+                                    </tr>
+                                ))
+                            ) : filteredUsers.length > 0 ? (
+                                filteredUsers.map((user) => (
+                                    <tr key={user._id} className="hover:bg-bg-tertiary/20 transition-colors group">
+                                        <td className="px-6 py-6 font-medium">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm border border-primary/20 shrink-0">
+                                                    {user.name.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-primary font-bold text-sm tracking-tight truncate">{user.name}</p>
+                                                    <div className="flex items-center text-[11px] text-text-tertiary font-medium mt-0.5 truncate">
+                                                        <Mail size={12} className="mr-1 shrink-0" />
+                                                        {user.email}
+                                                    </div>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-6 text-sm">
+                                            <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tight ${
+                                                user.role === 'admin' ? 'bg-purple-50 text-purple-600' :
+                                                user.role === 'company' ? 'bg-blue-50 text-blue-600' :
+                                                'bg-emerald-50 text-emerald-600'
+                                            }`}>
+                                                {user.role === 'company' ? <Building size={12} className="mr-1.5" /> : <UserCheck size={12} className="mr-1.5" />}
+                                                {user.role}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-6 text-xs text-text-tertiary font-bold">
+                                            {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        </td>
+                                        <td className="px-6 py-6 text-right">
+                                            <button 
+                                                onClick={() => setDeleteId(user._id)}
+                                                className="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                                title="Delete User"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="4" className="px-6 py-20 text-center">
+                                        <div className="max-w-xs mx-auto">
+                                            <div className="bg-bg-tertiary h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4 text-primary/20">
+                                                <Search size={32} />
+                                            </div>
+                                            <h4 className="text-primary font-bold text-lg">No users found</h4>
+                                            <p className="text-text-tertiary text-xs mt-1">Try adjusting your filters or search terms.</p>
                                         </div>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                        <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-tight ${
-                                            user.role === 'admin' ? 'bg-purple-50 text-purple-600' :
-                                            user.role === 'company' ? 'bg-blue-50 text-blue-600' :
-                                            'bg-emerald-50 text-emerald-600'
-                                        }`}>
-                                            {user.role === 'company' ? <Building size={12} className="mr-1.5" /> : <UserCheck size={12} className="mr-1.5" />}
-                                            {user.role}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-6 text-sm text-text-tertiary font-medium">
-                                        {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </td>
-                                    <td className="px-6 py-6 text-right">
-                                        <button 
-                                            onClick={() => setDeleteId(user._id)}
-                                            className="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                                            title="Delete User"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="4" className="px-6 py-20 text-center">
-                                    <div className="max-w-xs mx-auto">
-                                        <div className="bg-bg-tertiary h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4 text-primary/20">
-                                            <Search size={32} />
-                                        </div>
-                                        <h4 className="text-primary font-bold">No users found</h4>
-                                        <p className="text-text-tertiary text-sm mt-1">Try adjusting your filters or search terms.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
           </div>
         </main>
@@ -200,13 +216,13 @@ const UserManagement = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteId && (
-        <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-bg-primary w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl border border-border-light animate-in zoom-in-95 duration-200">
-                <div className="h-20 w-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-bounce-short">
-                    <AlertTriangle size={40} strokeWidth={2.5} />
+        <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-bg-primary w-full max-w-md rounded-[2.5rem] p-8 md:p-10 shadow-2xl border border-border-light animate-in zoom-in-95 duration-200">
+                <div className="h-16 w-16 md:h-20 md:w-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6 md:8 animate-bounce-short">
+                    <AlertTriangle size={36} strokeWidth={2.5} />
                 </div>
-                <h3 className="text-2xl font-black text-primary text-center mb-3">Permanent Deletion</h3>
-                <p className="text-text-tertiary text-center font-medium leading-relaxed mb-10">
+                <h3 className="text-xl md:text-2xl font-black text-primary text-center mb-3">Permanent Deletion</h3>
+                <p className="text-text-tertiary text-center font-medium leading-relaxed mb-8 md:10 text-sm md:text-base">
                     Are you absolutely sure? This action will permanently remove the user and all associated data from the platform.
                 </p>
                 <div className="flex flex-col space-y-3">

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import CompanySidebar from '../components/CompanySidebar';
+import MobileHeader from '../components/MobileHeader';
 import api from '../utils/api';
 
 const CompanyApplications = () => {
@@ -21,6 +22,7 @@ const CompanyApplications = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [updatingId, setUpdatingId] = useState(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         const fetchApplications = async () => {
@@ -78,18 +80,20 @@ const CompanyApplications = () => {
     }
 
     return (
-        <div className="flex h-screen bg-bg-secondary overflow-hidden text-text-primary">
-            <CompanySidebar user={user} />
+        <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen bg-bg-secondary lg:overflow-hidden text-text-primary">
+            <CompanySidebar user={user} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <header className="h-20 bg-bg-primary border-b border-border-light flex items-center justify-between px-8">
+                <MobileHeader isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} role="company" />
+
+                <header className="hidden lg:flex h-20 bg-bg-primary border-b border-border-light items-center justify-between px-8">
                     <div>
                         <h2 className="text-2xl font-black text-primary tracking-tight">Manage Applications</h2>
                         <p className="text-sm text-text-tertiary font-medium">Review and respond to student interests</p>
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-y-auto p-8 bg-bg-secondary custom-scrollbar">
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-bg-secondary custom-scrollbar">
                     <div className="max-w-7xl mx-auto">
                         
                         {/* Action Bar */}

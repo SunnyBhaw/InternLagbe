@@ -1,16 +1,17 @@
 import {
-  AlertCircle,
-  Briefcase,
-  Edit,
-  Filter,
-  Loader2,
-  PlusCircle,
-  Search,
-  Trash2,
+    AlertCircle,
+    Briefcase,
+    Edit,
+    Filter,
+    Loader2,
+    PlusCircle,
+    Search,
+    Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CompanySidebar from "../components/CompanySidebar";
+import MobileHeader from "../components/MobileHeader";
 import api from "../utils/api";
 
 const ManageInternships = () => {
@@ -21,6 +22,7 @@ const ManageInternships = () => {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -76,12 +78,14 @@ const ManageInternships = () => {
   }
 
   return (
-    <div className="flex h-screen bg-bg-secondary overflow-hidden">
-      <CompanySidebar user={user} />
+    <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen bg-bg-secondary lg:overflow-hidden">
+      <CompanySidebar user={user} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
+        <MobileHeader isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} role="company" />
+
         {/* Header */}
-        <header className="h-20 bg-bg-primary border-b border-border-light flex items-center justify-between px-8">
+        <header className="hidden lg:flex h-20 bg-bg-primary border-b border-border-light items-center justify-between px-8">
           <div>
             <h2 className="text-2xl font-black text-primary tracking-tight">
               Manage Internships
@@ -93,7 +97,7 @@ const ManageInternships = () => {
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 bg-bg-secondary custom-scrollbar">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-bg-secondary custom-scrollbar">
           <div className="max-w-7xl mx-auto">
             {/* Action Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">

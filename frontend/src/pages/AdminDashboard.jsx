@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import MobileHeader from '../components/MobileHeader';
 import Sidebar from '../components/Sidebar';
 import api from '../utils/api';
 
@@ -23,6 +24,7 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // User details (Mocked for now)
   const userName = "System Admin";
@@ -70,14 +72,16 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-bg-secondary overflow-hidden font-sans">
+    <div className="flex flex-col lg:flex-row h-screen bg-bg-secondary overflow-hidden font-sans">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
+        <MobileHeader isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} role="admin" />
+        
         {/* Top Header */}
-        <header className="h-20 bg-bg-primary border-b border-border-light flex items-center justify-between px-8">
+        <header className="hidden lg:flex h-20 bg-bg-primary border-b border-border-light items-center justify-between px-8">
           <div>
             <h2 className="text-2xl font-black text-primary tracking-tight">Overview</h2>
             <p className="text-sm text-text-tertiary font-medium">System performance and metrics</p>
@@ -85,7 +89,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 bg-bg-secondary custom-scrollbar">
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-bg-secondary custom-scrollbar">
           <div className="max-w-7xl mx-auto">
              
              {error && (
@@ -95,8 +99,14 @@ const AdminDashboard = () => {
                 </div>
              )}
 
+             {/* Mobile Welcome (only visible on small screens) */}
+             <div className="lg:hidden mb-8">
+                <h1 className="text-3xl font-black text-text-primary mb-1">System Status</h1>
+                <p className="text-primary font-bold">Administrator Dashboard</p>
+             </div>
+
              {/* Stats Cards */}
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:8 mb-10">
                 {statCards.map((card, index) => {
                     const Icon = card.icon;
                     return (
@@ -110,11 +120,11 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                             <div>
-                                <p className="text-text-tertiary text-xs font-black uppercase tracking-widest mb-1">{card.title}</p>
+                                <p className="text-text-tertiary text-[10px] md:text-xs font-black uppercase tracking-widest mb-1">{card.title}</p>
                                 {loading ? (
                                     <div className="h-9 w-16 bg-bg-tertiary animate-pulse rounded-lg"></div>
                                 ) : (
-                                    <h3 className="text-3xl font-black text-primary tracking-tighter">{card.value}</h3>
+                                    <h3 className="text-3xl md:text-4xl font-black text-primary lining-nums tracking-tighter">{card.value}</h3>
                                 )}
                             </div>
                         </div>
@@ -123,15 +133,15 @@ const AdminDashboard = () => {
              </div>
              
              {/* Activity Snapshot Section */}
-             <div className="bg-bg-primary rounded-[2.5rem] border border-border-light shadow-sm overflow-hidden">
-                <div className="p-8 border-b border-border-light flex items-center justify-between bg-bg-tertiary/20">
+             <div className="bg-bg-primary rounded-[2.5rem] border border-border-light shadow-sm overflow-hidden mb-10">
+                <div className="p-6 md:8 border-b border-border-light flex flex-col sm:flex-row sm:items-center justify-between bg-bg-tertiary/20 gap-4">
                     <div className="flex items-center space-x-3">
                         <div className="h-10 w-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center">
                             <Activity size={20} />
                         </div>
-                        <h3 className="text-xl font-black text-primary">System Activity Snapshot</h3>
+                        <h3 className="text-lg md:xl font-black text-primary">System Activity Snapshot</h3>
                     </div>
-                    <Link to="/admin/reports" className="text-xs font-black text-primary hover:underline flex items-center group uppercase tracking-widest">
+                    <Link to="/admin/reports" className="text-[10px] md:text-xs font-black text-primary hover:underline flex items-center group uppercase tracking-widest">
                         View Detailed Reports <ChevronRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>
@@ -143,13 +153,13 @@ const AdminDashboard = () => {
                     </div>
                 ) : stats.recentActivity?.length > 0 ? (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left min-w-[600px]">
                             <tbody className="divide-y divide-border-light">
                                 {stats.recentActivity.map((act, i) => (
                                     <tr key={i} className="hover:bg-bg-tertiary/5 transition-colors group">
-                                        <td className="px-8 py-5">
+                                        <td className="px-6 md:px-8 py-5">
                                             <div className="flex items-center space-x-3">
-                                                <div className="h-9 w-9 rounded-lg bg-bg-tertiary flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                                <div className="h-9 w-9 rounded-lg bg-bg-tertiary flex items-center justify-center text-primary group-hover:scale-110 transition-transform hidden sm:flex">
                                                     <Briefcase size={16} />
                                                 </div>
                                                 <div>
@@ -167,8 +177,8 @@ const AdminDashboard = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5">
-                                            <div className="flex items-center text-xs font-bold text-text-tertiary">
+                                        <td className="px-6 md:px-8 py-5">
+                                            <div className="flex items-center text-xs font-bold text-text-tertiary whitespace-nowrap">
                                                 <Calendar size={14} className="mr-2 opacity-50" />
                                                 {new Date(act.createdAt).toLocaleString('en-US', { 
                                                     month: 'short', 
@@ -178,7 +188,7 @@ const AdminDashboard = () => {
                                                 })}
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5 text-right">
+                                        <td className="px-6 md:px-8 py-5 text-right">
                                             <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${
                                                 act.status === 'accepted' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
                                                 act.status === 'shortlisted' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
