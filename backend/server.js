@@ -18,7 +18,10 @@ const app = express();
 const path = require('path');
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+    origin: "*",
+    credentials: true
+}));
 app.use(express.json());
 
 // Set static folder for uploads
@@ -30,6 +33,10 @@ app.use('/api/admin', admin);
 app.use('/api/internships', internships);
 app.use('/api/applications', applications);
 app.use('/api/profile', profile);
+
+app.get("/",(req, res) =>{
+    res.send("Backend Running")
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
