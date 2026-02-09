@@ -22,6 +22,7 @@ const Signup = () => {
     setError("");
     try {
       const res = await api.post("/auth/register", formData);
+      console.log(api)
       localStorage.setItem("token", res.data.token);
 
       const { role } = res.data.data;
